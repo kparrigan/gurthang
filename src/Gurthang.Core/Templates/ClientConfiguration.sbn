@@ -1,0 +1,44 @@
+namespace {{ Namespace }};
+
+/// <summary>
+/// Configuration for the {{ Title }} API client.
+/// </summary>
+public class ClientConfiguration
+{
+    /// <summary>
+    /// Base URL for the API.
+    /// </summary>
+    public string BaseUrl { get; set; }{{ if DefaultBaseUrl }} = "{{ DefaultBaseUrl }}";{{ else }} = "";{{ end }}
+
+    {{~ if HasBearer ~}}
+    /// <summary>
+    /// Bearer token for authentication.
+    /// </summary>
+    public string? BearerToken { get; set; }
+
+    {{~ end ~}}
+    {{~ if HasBasic ~}}
+    /// <summary>
+    /// Username for basic authentication.
+    /// </summary>
+    public string? Username { get; set; }
+
+    /// <summary>
+    /// Password for basic authentication.
+    /// </summary>
+    public string? Password { get; set; }
+
+    {{~ end ~}}
+    {{~ if HasApiKey ~}}
+    /// <summary>
+    /// API key for authentication.
+    /// </summary>
+    public string? ApiKey { get; set; }
+
+    /// <summary>
+    /// Header name for the API key.
+    /// </summary>
+    public string ApiKeyHeaderName { get; set; } = "{{ ApiKeyHeaderName }}";
+
+    {{~ end ~}}
+}

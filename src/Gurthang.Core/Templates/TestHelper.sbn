@@ -1,0 +1,31 @@
+using System.Net;
+
+namespace {{ TestNamespace }};
+
+public class FakeHttpHandler : HttpMessageHandler
+{
+    private HttpStatusCode _statusCode = HttpStatusCode.OK;
+    private string _content = "{}";
+
+    public HttpRequestMessage? LastRequest { get; private set; }
+    public string? LastRequestBody { get; private set; }
+
+    public void SetupResponse(HttpStatusCode statusCode, string content)
+    {
+        _statusCode = statusCode;
+        _content = content;
+    }
+
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        LastRequest = request;
+        if (request.Content != null)
+            LastRequestBody = await request.Content.ReadAsStringAsync(cancellationToken);
+
+        var response = new HttpResponseMessage(_statusCode)
+        {
+            Content = new StringContent(_content, System.Text.Encoding.UTF8, "application/json")
+        };
+        return response;
+    }
+}

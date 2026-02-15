@@ -1,0 +1,65 @@
+using RestSharp;
+using {{ Namespace }}.Models;
+
+namespace {{ Namespace }}.Api;
+
+/// <summary>
+/// API client for {{ Tag }} operations.
+/// </summary>
+public class {{ ClassName }} : BaseApiClient, I{{ ClassName }}
+{
+    public {{ ClassName }}(ClientConfiguration config) : base(config) { }
+
+    internal {{ ClassName }}(RestClient client) : base(client) { }
+    {{~ for op in Operations ~}}
+
+    /// <summary>
+    /// {{ op.Summary ?? op.OperationId }}
+    /// </summary>
+    {{~ if op.ReturnsVoid ~}}
+    public async Task {{ op.OperationId }}Async({{ for param in op.AllParameters }}{{ param.CSharpType }} {{ param.CSharpName }}{{ if !for.last }}, {{ end }}{{ end }}{{ if op.HasParameters }}, {{ end }}CancellationToken cancellationToken = default)
+    {
+        var request = new RestRequest("{{ op.Path }}", Method.{{ op.HttpMethod }});
+        {{~ for param in op.Parameters ~}}
+        {{~ if param.Location == "path" ~}}
+        request.AddUrlSegment("{{ param.Name }}", {{ param.CSharpName }});
+        {{~ else if param.Location == "query" ~}}
+        {{~ if !param.IsRequired ~}}
+        if ({{ param.CSharpName }} != null) request.AddQueryParameter("{{ param.Name }}", {{ param.CSharpName }}.ToString());
+        {{~ else ~}}
+        request.AddQueryParameter("{{ param.Name }}", {{ param.CSharpName }}.ToString());
+        {{~ end ~}}
+        {{~ else if param.Location == "header" ~}}
+        request.AddHeader("{{ param.Name }}", {{ param.CSharpName }});
+        {{~ end ~}}
+        {{~ end ~}}
+        {{~ if op.RequestBody ~}}
+        request.AddJsonBody({{ op.RequestBodyParamName }});
+        {{~ end ~}}
+        await ExecuteAsync(request, cancellationToken);
+    }
+    {{~ else ~}}
+    public async Task<{{ op.FullReturnType }}> {{ op.OperationId }}Async({{ for param in op.AllParameters }}{{ param.CSharpType }} {{ param.CSharpName }}{{ if !for.last }}, {{ end }}{{ end }}{{ if op.HasParameters }}, {{ end }}CancellationToken cancellationToken = default)
+    {
+        var request = new RestRequest("{{ op.Path }}", Method.{{ op.HttpMethod }});
+        {{~ for param in op.Parameters ~}}
+        {{~ if param.Location == "path" ~}}
+        request.AddUrlSegment("{{ param.Name }}", {{ param.CSharpName }});
+        {{~ else if param.Location == "query" ~}}
+        {{~ if !param.IsRequired ~}}
+        if ({{ param.CSharpName }} != null) request.AddQueryParameter("{{ param.Name }}", {{ param.CSharpName }}.ToString());
+        {{~ else ~}}
+        request.AddQueryParameter("{{ param.Name }}", {{ param.CSharpName }}.ToString());
+        {{~ end ~}}
+        {{~ else if param.Location == "header" ~}}
+        request.AddHeader("{{ param.Name }}", {{ param.CSharpName }});
+        {{~ end ~}}
+        {{~ end ~}}
+        {{~ if op.RequestBody ~}}
+        request.AddJsonBody({{ op.RequestBodyParamName }});
+        {{~ end ~}}
+        return await ExecuteAsync<{{ op.FullReturnType }}>(request, cancellationToken);
+    }
+    {{~ end ~}}
+    {{~ end ~}}
+}

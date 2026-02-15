@@ -1,0 +1,39 @@
+using {{ ClientNamespace }};
+using {{ ClientNamespace }}.Api;
+using {{ ClientNamespace }}.Models;
+
+Console.WriteLine("{{ Title }} API Client Demo");
+Console.WriteLine(new string('=', 40));
+
+var config = new ClientConfiguration
+{
+    BaseUrl = "{{ BaseUrl }}"
+};
+
+// TODO: Configure authentication
+// config.BearerToken = "your-token-here";
+// config.ApiKey = "your-api-key-here";
+
+{{~ for client in Clients ~}}
+var {{ client.VariableName }} = new {{ client.ClassName }}(config);
+
+{{~ for op in client.Operations ~}}
+// {{ op.Summary ?? op.OperationId }}
+try
+{
+    {{~ if op.ReturnsVoid ~}}
+    await {{ client.VariableName }}.{{ op.OperationId }}Async({{ for param in op.AllParameters }}{{ param.DefaultValue }}{{ if !for.last }}, {{ end }}{{ end }});
+    Console.WriteLine("{{ op.OperationId }}: Success");
+    {{~ else ~}}
+    var result = await {{ client.VariableName }}.{{ op.OperationId }}Async({{ for param in op.AllParameters }}{{ param.DefaultValue }}{{ if !for.last }}, {{ end }}{{ end }});
+    Console.WriteLine("{{ op.OperationId }}: " + result);
+    {{~ end ~}}
+}
+catch (Exception ex)
+{
+    Console.WriteLine("{{ op.OperationId }} failed: " + ex.Message);
+}
+
+{{~ end ~}}
+{{~ end ~}}
+Console.WriteLine("\nDemo complete.");

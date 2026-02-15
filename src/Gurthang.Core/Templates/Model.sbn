@@ -1,0 +1,40 @@
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+
+namespace {{ Namespace }}.Models;
+
+{{ if Description }}/// <summary>
+/// {{ Description }}
+/// </summary>
+{{ end -}}
+{{ if Polymorphism }}[JsonPolymorphic(TypeDiscriminatorPropertyName = "{{ Polymorphism.DiscriminatorPropertyName }}")]
+{{ for dt in Polymorphism.DerivedTypes -}}
+[JsonDerivedType(typeof({{ dt.TypeName }}), "{{ dt.DiscriminatorValue }}")]
+{{ end -}}
+{{ end -}}
+public class {{ ClassName }}{{ if ParentName }} : {{ ParentName }}{{ end }}
+{
+    {{~ for prop in Properties ~}}
+    {{ if prop.Description }}/// <summary>
+    /// {{ prop.Description }}
+    /// </summary>
+    {{ end -}}
+    {{ if prop.IsRequired }}[Required]
+    {{ end -}}
+    {{ if prop.IsStringType && prop.MinLength && prop.MaxLength }}[StringLength({{ prop.MaxLength }}, MinimumLength = {{ prop.MinLength }})]
+    {{ else if prop.IsStringType && prop.MaxLength }}[MaxLength({{ prop.MaxLength }})]
+    {{ else if prop.IsStringType && prop.MinLength }}[MinLength({{ prop.MinLength }})]
+    {{ end -}}
+    {{ if prop.IsNumericType && prop.Minimum && prop.Maximum }}[Range({{ prop.Minimum }}, {{ prop.Maximum }})]
+    {{ else if prop.IsNumericType && prop.Minimum }}[Range({{ prop.Minimum }}, double.MaxValue)]
+    {{ else if prop.IsNumericType && prop.Maximum }}[Range(double.MinValue, {{ prop.Maximum }})]
+    {{ end -}}
+    {{ if prop.Pattern }}[RegularExpression(@"{{ prop.Pattern }}")]
+    {{ end -}}
+    {{ if !prop.IsRequired && !prop.IsValueType }}[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    {{ end -}}
+    [JsonPropertyName("{{ prop.JsonName }}")]
+    public {{ prop.CSharpType }}{{ if !prop.IsRequired && !prop.IsValueType && !prop.IsAlreadyNullable }}?{{ end }} {{ prop.Name }} { get; set; }{{ if prop.IsRequired && !prop.IsValueType }} = default!;{{ end }}
+
+    {{~ end ~}}
+}

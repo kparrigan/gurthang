@@ -1,0 +1,20 @@
+using {{ Namespace }}.Models;
+
+namespace {{ Namespace }}.Api;
+
+/// <summary>
+/// Interface for {{ Tag }} operations.
+/// </summary>
+public interface I{{ ClassName }}
+{
+    {{~ for op in Operations ~}}
+    /// <summary>
+    /// {{ op.Summary ?? op.OperationId }}
+    /// </summary>
+    {{~ if op.ReturnsVoid ~}}
+    Task {{ op.OperationId }}Async({{ for param in op.AllParameters }}{{ param.CSharpType }} {{ param.CSharpName }}{{ if !for.last }}, {{ end }}{{ end }}{{ if op.HasParameters }}, {{ end }}CancellationToken cancellationToken = default);
+    {{~ else ~}}
+    Task<{{ op.FullReturnType }}> {{ op.OperationId }}Async({{ for param in op.AllParameters }}{{ param.CSharpType }} {{ param.CSharpName }}{{ if !for.last }}, {{ end }}{{ end }}{{ if op.HasParameters }}, {{ end }}CancellationToken cancellationToken = default);
+    {{~ end ~}}
+    {{~ end ~}}
+}

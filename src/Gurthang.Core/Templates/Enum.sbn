@@ -1,0 +1,17 @@
+using System.Text.Json.Serialization;
+
+namespace {{ Namespace }}.Models;
+
+{{ if Description }}/// <summary>
+/// {{ Description }}
+/// </summary>
+{{ end -}}
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum {{ EnumName }}
+{
+    {{~ for val in Values ~}}
+    [JsonPropertyName("{{ val.OriginalValue }}")]
+    {{ val.Name }}{{ if !for.last }},{{ end }}
+
+    {{~ end ~}}
+}

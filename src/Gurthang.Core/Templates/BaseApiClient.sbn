@@ -1,0 +1,72 @@
+using RestSharp;
+using RestSharp.Authenticators;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("{{ TestProjectName }}")]
+
+namespace {{ Namespace }};
+
+/// <summary>
+/// Base class for all API clients.
+/// </summary>
+public abstract class BaseApiClient
+{
+    protected readonly RestClient Client;
+
+    protected BaseApiClient(ClientConfiguration config)
+    {
+        var options = new RestClientOptions(config.BaseUrl);
+
+        {{~ if HasBearer ~}}
+        if (!string.IsNullOrEmpty(config.BearerToken))
+        {
+            options.Authenticator = new JwtAuthenticator(config.BearerToken);
+        }
+        {{~ end ~}}
+        {{~ if HasBasic ~}}
+        if (!string.IsNullOrEmpty(config.Username))
+        {
+            options.Authenticator = new HttpBasicAuthenticator(config.Username, config.Password ?? "");
+        }
+        {{~ end ~}}
+
+        Client = new RestClient(options);
+
+        {{~ if HasApiKey ~}}
+        if (!string.IsNullOrEmpty(config.ApiKey))
+        {
+            Client.AddDefaultHeader(config.ApiKeyHeaderName, config.ApiKey);
+        }
+        {{~ end ~}}
+    }
+
+    internal BaseApiClient(RestClient client)
+    {
+        Client = client;
+    }
+
+    protected async Task<T> ExecuteAsync<T>(RestRequest request, CancellationToken cancellationToken = default)
+    {
+        var response = await Client.ExecuteAsync<T>(request, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ApiException(
+                $"API request failed: {response.StatusCode}",
+                (int)response.StatusCode,
+                response.Content);
+        }
+        return response.Data!;
+    }
+
+    protected async Task ExecuteAsync(RestRequest request, CancellationToken cancellationToken = default)
+    {
+        var response = await Client.ExecuteAsync(request, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ApiException(
+                $"API request failed: {response.StatusCode}",
+                (int)response.StatusCode,
+                response.Content);
+        }
+    }
+}

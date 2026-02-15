@@ -1,0 +1,49 @@
+using RestSharp;
+using {{ ClientNamespace }};
+using {{ ClientNamespace }}.Api;
+using {{ ClientNamespace }}.Models;
+using System.Net;
+using Xunit;
+
+namespace {{ TestNamespace }}.Api;
+
+public class {{ TestClassName }}
+{
+    private readonly {{ ClassName }} _api;
+    private readonly FakeHttpHandler _handler;
+
+    public {{ TestClassName }}()
+    {
+        _handler = new FakeHttpHandler();
+        var client = new RestClient(new RestClientOptions("http://localhost") { ConfigureMessageHandler = _ => _handler });
+        _api = new {{ ClassName }}(client);
+    }
+    {{~ for op in Operations ~}}
+
+    [Fact]
+    public async Task {{ op.OperationId }}Async_SendsCorrectRequest()
+    {
+        // Arrange
+        _handler.SetupResponse(HttpStatusCode.OK, "{{ op.ResponseJson }}");
+
+        // Act
+        {{~ if op.ReturnsVoid ~}}
+        await _api.{{ op.OperationId }}Async({{ for param in op.AllParameters }}{{ param.DefaultTestValue }}{{ if !for.last }}, {{ end }}{{ end }});
+        {{~ else ~}}
+        var result = await _api.{{ op.OperationId }}Async({{ for param in op.AllParameters }}{{ param.DefaultTestValue }}{{ if !for.last }}, {{ end }}{{ end }});
+        {{~ end ~}}
+
+        // Assert - HTTP method
+        Assert.NotNull(_handler.LastRequest);
+        Assert.Equal(HttpMethod.{{ op.HttpMethod }}, _handler.LastRequest.Method);
+
+        // Assert - URL path
+        Assert.Contains("{{ op.ExpectedPath }}", _handler.LastRequest.RequestUri?.PathAndQuery ?? "");
+        {{~ if !op.ReturnsVoid ~}}
+
+        // Assert - response deserialized
+        Assert.NotNull(result);
+        {{~ end ~}}
+    }
+    {{~ end ~}}
+}

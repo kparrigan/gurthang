@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Gurthang.Cli": {
+      "commandName": "Project",
+      "commandLineArgs": "--spec \"C:\\Git\\Data\\theta_lake_api_v1.yml\"\r\n--output \"C:\\Git\\gurthang-implementations\\ThetaLake\""
+    }
+  }
+}
