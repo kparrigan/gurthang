@@ -262,7 +262,7 @@ public class OpenApiSpecParser
 
                 operations.Add(new ParsedOperation
                 {
-                    OperationId = NameHelper.ToPascalCase(operationId),
+                    OperationId = NameHelper.ToPascalCase(NameHelper.SanitizeIdentifier(operationId)),
                     Tag = tag,
                     HttpMethod = method.ToString().ToUpperInvariant(),
                     Path = path,
