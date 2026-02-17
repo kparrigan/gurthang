@@ -65,7 +65,7 @@ public class DemoGenerator
         return new
         {
             op.OperationId,
-            op.Summary,
+            Summary = NameHelper.ToXmlDocSafe(op.Summary),
             ReturnsVoid = returnsVoid,
             FullReturnType = fullReturnType,
             AllParameters = allParameters,

@@ -161,6 +161,32 @@ public class OpenApiSpecParser
         if (schema.Reference != null)
         {
             var refName = schema.Reference.Id;
+
+            // Check if this referenced schema will actually generate a class/enum.
+            // If it's an array, primitive, dictionary, etc., resolve its underlying type
+            // instead of using the ref name as a class name.
+            if (schema.Type == "array" && schema.Items != null)
+            {
+                var (itemType, _) = ResolveType(schema.Items);
+                return ($"List<{itemType}>", null);
+            }
+
+            if (schema.Type != "object"
+                && schema.AllOf?.Count == 0
+                && schema.Enum?.Any() != true
+                && !string.IsNullOrEmpty(schema.Type))
+            {
+                // This is a named schema for a primitive or other non-object type;
+                // no class will be generated, so resolve to the underlying type.
+                if (schema.AdditionalProperties != null)
+                {
+                    var (valueType, _) = ResolveType(schema.AdditionalProperties);
+                    return ($"Dictionary<string, {valueType}>", null);
+                }
+
+                return (TypeMapper.MapType(schema.Type, schema.Format), null);
+            }
+
             return (NameHelper.ToClassName(refName), refName);
         }
 

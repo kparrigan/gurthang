@@ -17,7 +17,7 @@ public class ModelGenerator
             {
                 Namespace = rootNamespace,
                 ClassName = model.Name,
-                Description = model.Description,
+                Description = NameHelper.ToXmlDocSafe(model.Description),
                 ParentName = model.ParentName,
                 Polymorphism = model.Polymorphism,
                 Properties = model.Properties.Select(p => new
@@ -27,7 +27,7 @@ public class ModelGenerator
                     p.CSharpType,
                     p.IsRequired,
                     p.IsNullable,
-                    p.Description,
+                    Description = NameHelper.ToXmlDocSafe(p.Description),
                     IsValueType = TypeMapper.IsValueType(p.CSharpType.TrimEnd('?')),
                     IsAlreadyNullable = p.CSharpType.EndsWith("?"),
                     p.MinLength,
@@ -50,7 +50,7 @@ public class ModelGenerator
             {
                 Namespace = rootNamespace,
                 EnumName = enumDef.Name,
-                Description = enumDef.Description,
+                Description = NameHelper.ToXmlDocSafe(enumDef.Description),
                 Values = enumDef.Values
             };
 

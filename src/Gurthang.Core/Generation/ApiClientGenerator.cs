@@ -46,7 +46,7 @@ public class ApiClientGenerator
             p.CSharpType,
             p.Location,
             p.IsRequired,
-            p.Description
+            Description = NameHelper.ToXmlDocSafe(p.Description)
         }).ToList();
 
         var allParameters = new List<object>(parameters.Cast<object>());
@@ -62,7 +62,7 @@ public class ApiClientGenerator
                 CSharpType = op.RequestBody.CSharpType,
                 Location = "body",
                 IsRequired = op.RequestBody.IsRequired,
-                Description = op.RequestBody.Description ?? "Request body"
+                Description = NameHelper.ToXmlDocSafe(op.RequestBody.Description) ?? "Request body"
             });
         }
 
@@ -74,8 +74,8 @@ public class ApiClientGenerator
             op.OperationId,
             HttpMethod = ToRestSharpMethod(op.HttpMethod),
             op.Path,
-            op.Summary,
-            op.Description,
+            Summary = NameHelper.ToXmlDocSafe(op.Summary),
+            Description = NameHelper.ToXmlDocSafe(op.Description),
             ReturnsVoid = returnsVoid,
             FullReturnType = fullReturnType,
             Parameters = parameters,

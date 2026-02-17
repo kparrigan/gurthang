@@ -120,6 +120,33 @@ public static partial class NameHelper
         return name;
     }
 
+    /// <summary>
+    /// Sanitizes a string for use inside an XML doc comment line.
+    /// Replaces newlines with spaces and escapes XML special characters.
+    /// </summary>
+    public static string? ToXmlDocSafe(string? input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        // Replace newlines with spaces to keep it on one line
+        var result = input
+            .Replace("\r\n", " ")
+            .Replace("\r", " ")
+            .Replace("\n", " ");
+
+        // Collapse multiple spaces
+        result = MultipleSpacesRegex().Replace(result, " ").Trim();
+
+        // Escape XML special characters
+        result = result
+            .Replace("&", "&amp;")
+            .Replace("<", "&lt;")
+            .Replace(">", "&gt;");
+
+        return result;
+    }
+
     public static string SolutionNameFromTitle(string title)
     {
         var name = ToPascalCase(title);
@@ -131,4 +158,7 @@ public static partial class NameHelper
 
     [GeneratedRegex(@"[^\w\-.]")]
     private static partial Regex InvalidFileCharsRegex();
+
+    [GeneratedRegex(@" {2,}")]
+    private static partial Regex MultipleSpacesRegex();
 }
