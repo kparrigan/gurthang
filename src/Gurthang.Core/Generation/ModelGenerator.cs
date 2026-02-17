@@ -22,7 +22,7 @@ public class ModelGenerator
                 Polymorphism = model.Polymorphism,
                 Properties = model.Properties.Select(p => new
                 {
-                    p.Name,
+                    Name = p.Name == model.Name ? p.Name + "Value" : p.Name,
                     p.JsonName,
                     p.CSharpType,
                     p.IsRequired,
