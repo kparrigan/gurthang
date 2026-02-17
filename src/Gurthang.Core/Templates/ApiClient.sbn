@@ -30,7 +30,11 @@ public class {{ ClassName }} : BaseApiClient, I{{ ClassName }}
         request.AddQueryParameter("{{ param.Name }}", {{ param.CSharpName }}.ToString());
         {{~ end ~}}
         {{~ else if param.Location == "header" ~}}
-        request.AddHeader("{{ param.Name }}", {{ param.CSharpName }});
+        {{~ if !param.IsRequired ~}}
+        if ({{ param.CSharpName }} != null) request.AddHeader("{{ param.Name }}", {{ param.CSharpName }}.ToString());
+        {{~ else ~}}
+        request.AddHeader("{{ param.Name }}", {{ param.CSharpName }}.ToString());
+        {{~ end ~}}
         {{~ end ~}}
         {{~ end ~}}
         {{~ if op.RequestBody ~}}
@@ -52,7 +56,11 @@ public class {{ ClassName }} : BaseApiClient, I{{ ClassName }}
         request.AddQueryParameter("{{ param.Name }}", {{ param.CSharpName }}.ToString());
         {{~ end ~}}
         {{~ else if param.Location == "header" ~}}
-        request.AddHeader("{{ param.Name }}", {{ param.CSharpName }});
+        {{~ if !param.IsRequired ~}}
+        if ({{ param.CSharpName }} != null) request.AddHeader("{{ param.Name }}", {{ param.CSharpName }}.ToString());
+        {{~ else ~}}
+        request.AddHeader("{{ param.Name }}", {{ param.CSharpName }}.ToString());
+        {{~ end ~}}
         {{~ end ~}}
         {{~ end ~}}
         {{~ if op.RequestBody ~}}
