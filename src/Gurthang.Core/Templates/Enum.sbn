@@ -2,10 +2,11 @@ using System.Text.Json.Serialization;
 
 namespace {{ Namespace }}.Models;
 
-{{ if Description }}/// <summary>
+{{~ if Description ~}}
+/// <summary>
 /// {{ Description }}
 /// </summary>
-{{ end -}}
+{{~ end ~}}
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum {{ EnumName }}
 {
